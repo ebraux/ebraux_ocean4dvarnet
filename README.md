@@ -5,7 +5,7 @@ This software is a computer program whose purpose is to apply deep learning sche
 
 - Package installation
 ``` bash
-pip install -i https://test.pypi.org/simple/ ocean4dvarnet==0.0.1
+pip install -i https://test.pypi.org/simple/ ocean4dvarnet
 ```
 - Package utilisation
 ``` python
