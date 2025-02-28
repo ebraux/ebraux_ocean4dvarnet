@@ -1,5 +1,5 @@
 from . import models
-from . import datas
+from . import data
 from . import train
 from . import process
 from . import plot
@@ -9,7 +9,7 @@ from . import utils
 # Add function in exported function list
 __all__ = [
     'models',
-    'datas',
+    'data',
     'train',
     'process',
     'plot',
