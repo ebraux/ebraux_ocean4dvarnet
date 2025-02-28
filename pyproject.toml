@@ -1,6 +1,6 @@
 [project]
 name = "ocean4dvarnet"
-version = "0.0.10"
+version = "0.0.12"
 description = "A computer program whose purpose is to apply deep learning schemes to dynamical systems and ocean remote sensing data."
 authors = [
   { name="Ronan Fablet", email="ronan.fablet@imt-atlantique.fr" },
@@ -16,21 +16,23 @@ readme = "README.md"
 #  https://github.com/pypa/setuptools/issues/4828
 #license = "CECILL-C"
 #license-files = ["LICEN[CS]E*"]
-#requires-python = ">=3.10"
+requires-python = "~=3.10"
 classifiers = [
     "Programming Language :: Python :: 3",
     "Operating System :: OS Independent",
 ]
 dependencies = [
-  'xarray',
-  'pandas',
-  'numpy:wheel',
-]
-# certifi-2025.1.31 cftime-1.6.4.post1  python-dateutil-2.9.0.post0 pytz-2025.1 six-1.17.0 tzdata-2025.1
-#  "xarray==2025.1.2",
-#  "netcdf4 (>=1.7.2,<2.0.0)",
-#  "numpy==2.2.3",
-#  "pandas==2.2.3",
+  "xarray==2025.1.2",
+  "netcdf4 (>=1.7.2,<2.0.0)",
+  "numpy==1.26.4",
+  "pandas",
+  "pytorch-lightning==2.3.3",
+]  
+
+# conda dependencies
+#  - pytorch::pytorch=2.4.1
+#   - pytorch::pytorch-cuda=11.8
+
 
 [build-system]
 requires = ["setuptools", "wheel"]

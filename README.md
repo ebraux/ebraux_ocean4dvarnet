@@ -3,17 +3,21 @@
 This software is a computer program whose purpose is to apply deep learning schemes to dynamical systems and ocean remote sensing data.
 
 
-- Package installation (the package is hosted on test.pypi.org, and his dependencies on pypi.org
+### Package installation
+
+- the package is hosted on test.pypi.org, and his dependencies on pypi.org
 ``` bash
 pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ ocean4dvarnet
 ```
-- Package utilisation
+- To install a specific version use for example `ocean4dvarnet==0.0.11`
+
+###  Package utilisation
 ``` python
 import ocean4dvarnet
 ``` 
 
 
-- Informations about this package development : [package-development](./package-development.md)
+Informations about this package development : [package-development](./package-development.md)
 
 
 ---
