@@ -44,15 +44,15 @@ class Lit4dVarNet(pl.LightningModule):
 
     def forward(self, batch):
         return self.solver(batch)
-    
+
     def step(self, batch, phase=""):
         if self.training and batch.tgt.isfinite().float().mean() < 0.9:
             return None, None
 
         loss, out = self.base_step(batch, phase)
-        grad_loss = self.weighted_mse( kfilts.sobel(out) - kfilts.sobel(batch.tgt), self.rec_weight)
+        grad_loss = self.weighted_mse(kfilts.sobel(out) - kfilts.sobel(batch.tgt), self.rec_weight)
         prior_cost = self.solver.prior_cost(self.solver.init_state(batch, out))
-        self.log( f"{phase}_gloss", grad_loss, prog_bar=True, on_step=False, on_epoch=True)
+        self.log(f"{phase}_gloss", grad_loss, prog_bar=True, on_step=False, on_epoch=True)
 
         training_loss = 50 * loss + 1000 * grad_loss + 1.0 * prior_cost
         return training_loss, out
@@ -103,7 +103,7 @@ class Lit4dVarNet(pl.LightningModule):
 
         metric_data = self.test_data.pipe(self.pre_metric_fn)
         metrics = pd.Series({
-            metric_n: metric_fn(metric_data) 
+            metric_n: metric_fn(metric_data)
             for metric_n, metric_fn in self.metrics.items()
         })
 
@@ -115,7 +115,7 @@ class Lit4dVarNet(pl.LightningModule):
 
 
 class GradSolver(nn.Module):
-    def __init__(self, prior_cost, obs_cost, grad_mod, n_step, lr_grad=0.2, **kwargs):
+    def __init__(self, prior_cost, obs_cost, grad_mod, n_step, lr_grad=0.2, lbd=1.0, **kwargs):
         super().__init__()
         self.prior_cost = prior_cost
         self.obs_cost = obs_cost
@@ -123,6 +123,7 @@ class GradSolver(nn.Module):
 
         self.n_step = n_step
         self.lr_grad = lr_grad
+        self.lbd = lbd
 
         self._grad_norm = None
 
@@ -133,15 +134,14 @@ class GradSolver(nn.Module):
         return batch.input.nan_to_num().detach().requires_grad_(True)
 
     def solver_step(self, state, batch, step):
-        var_cost = self.prior_cost(state) + self.obs_cost(state, batch)
+        var_cost = self.prior_cost(state) + self.lbd**2 * self.obs_cost(state, batch)
         grad = torch.autograd.grad(var_cost, state, create_graph=True)[0]
 
         gmod = self.grad_mod(grad)
         state_update = (
             1 / (step + 1) * gmod
-                + self.lr_grad * (step + 1) / self.n_step * grad
+            + self.lr_grad * (step + 1) / self.n_step * grad
         )
-        
 
         return state - state_update
 
@@ -195,7 +195,7 @@ class ConvLstmGradModel(nn.Module):
     def forward(self, x):
         if self._grad_norm is None:
             self._grad_norm = (x**2).mean().sqrt()
-        x =  x / self._grad_norm
+        x = x / self._grad_norm
         hidden, cell = self._state
         x = self.dropout(x)
         x = self.down(x)
@@ -220,7 +220,7 @@ class ConvLstmGradModel(nn.Module):
 class BaseObsCost(nn.Module):
     def __init__(self, w=1) -> None:
         super().__init__()
-        self.w=w
+        self.w = w
 
     def forward(self, state, batch):
         msk = batch.input.isfinite()
