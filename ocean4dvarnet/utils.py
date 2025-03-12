@@ -9,7 +9,7 @@ import torch
 import pyinterp
 import pyinterp.fill
 import pyinterp.backends.xarray
-import src.data
+import data
 import xarray as xr
 import matplotlib.pyplot as plt
 
@@ -160,7 +160,7 @@ def load_altimetry_data(path, obs_from_tgt=False):
         ds = ds.assign(input=ds.tgt.where(np.isfinite(ds.input), np.nan))
 
     return (
-        ds[[*src.data.TrainingItem._fields]]
+        ds[[*data.TrainingItem._fields]]
         .transpose("time", "lat", "lon")
         .to_array()
     )
