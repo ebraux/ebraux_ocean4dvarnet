@@ -1,6 +1,6 @@
 [project]
 name = "ocean4dvarnet"
-version = "0.0.12"
+version = "0.0.13"
 description = "A computer program whose purpose is to apply deep learning schemes to dynamical systems and ocean remote sensing data."
 authors = [
   { name="Ronan Fablet", email="ronan.fablet@imt-atlantique.fr" },
