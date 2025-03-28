@@ -10,12 +10,12 @@ Classes:
     BilinAEPriorCost: A prior cost model using bilinear autoencoders.
 """
 
-import pandas as pd
 from pathlib import Path
+import pandas as pd
 import pytorch_lightning as pl
 import kornia.filters as kfilts
 import torch
-import torch.nn as nn
+from torch import nn
 import torch.nn.functional as F
 
 
@@ -33,7 +33,10 @@ class Lit4dVarNet(pl.LightningModule):
         persist_rw (bool): Whether to persist reconstruction weight as a buffer.
     """
 
-    def __init__(self, solver, rec_weight, opt_fn, test_metrics=None, pre_metric_fn=None, norm_stats=None, persist_rw=True):
+    def __init__(
+        self, solver, rec_weight, opt_fn, test_metrics=None,
+        pre_metric_fn=None, norm_stats=None, persist_rw=True
+    ):
         """
         Initialize the Lit4dVarNet module.
 
@@ -65,7 +68,7 @@ class Lit4dVarNet(pl.LightningModule):
         """
         if self._norm_stats is not None:
             return self._norm_stats
-        elif self.trainer.datamodule is not None:
+        if self.trainer.datamodule is not None:
             return self.trainer.datamodule.norm_stats()
         return (0., 1.)
 
@@ -222,7 +225,7 @@ class Lit4dVarNet(pl.LightningModule):
             rec_da = rec_da[0]
 
         self.test_data = rec_da.assign_coords(
-            dict(v0=self.test_quantities)
+            {"v0": self.test_quantities}
         ).to_dataset(dim='v0')
 
         metric_data = self.test_data.pipe(self.pre_metric_fn)
@@ -236,6 +239,7 @@ class Lit4dVarNet(pl.LightningModule):
             self.test_data.to_netcdf(Path(self.logger.log_dir) / 'test_data.nc')
             print(Path(self.trainer.log_dir) / 'test_data.nc')
             self.logger.log_metrics(metrics.to_dict())
+
 
 class GradSolver(nn.Module):
     """

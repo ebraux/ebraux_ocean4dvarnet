@@ -32,7 +32,9 @@ def base_training(trainer, dm, lit_mod, ckpt=None):
     trainer.test(lit_mod, datamodule=dm, ckpt_path='best')
 
 
-def multi_dm_training(trainer, dm, lit_mod, test_dm=None, test_fn=None, ckpt=None):
+def multi_dm_training(
+    trainer, dm, lit_mod, test_dm=None, test_fn=None, ckpt=None
+):
     """
     Perform training and testing with support for multiple datamodules.
 
@@ -60,7 +62,10 @@ def multi_dm_training(trainer, dm, lit_mod, test_dm=None, test_fn=None, ckpt=Non
     if test_fn is not None:
         if test_dm is None:
             test_dm = dm
-        lit_mod._norm_stats = test_dm.norm_stats()
+        if hasattr(lit_mod, 'set_norm_stats') and callable(getattr(lit_mod, 'set_norm_stats')):
+            lit_mod.set_norm_stats(test_dm.norm_stats())
+        else:
+            raise AttributeError("The 'lit_mod' object does not have a 'set_norm_stats' method.")
 
         best_ckpt_path = trainer.checkpoint_callback.best_model_path
         trainer.callbacks = []

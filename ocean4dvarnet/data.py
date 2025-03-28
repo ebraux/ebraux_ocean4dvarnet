@@ -3,13 +3,13 @@ This module provides data handling utilities for machine learning tasks using Py
 It includes classes for creating datasets, augmenting data, and managing data loading pipelines.
 """
 
+import itertools
+import functools as ft
+from collections import namedtuple
 import pytorch_lightning as pl
 import numpy as np
 import torch.utils.data
 import xarray as xr
-import itertools
-import functools as ft
-from collections import namedtuple
 
 TrainingItem = namedtuple('TrainingItem', ['input', 'tgt'])
 
@@ -18,14 +18,14 @@ class IncompleteScanConfiguration(Exception):
     """
     Exception raised when the scan configuration does not cover the entire domain.
     """
-    pass
+    # pass
 
 
 class DangerousDimOrdering(Exception):
     """
     Exception raised when the dimension ordering of the input data is incorrect.
     """
-    pass
+    # pass
 
 
 class XrDataset(torch.utils.data.Dataset):
@@ -67,7 +67,8 @@ class XrDataset(torch.utils.data.Dataset):
         Args:
             da (xarray.DataArray): Input data, with patch dims at the end in the dim orders
             patch_dims (dict):  da dimension and sizes of patches to extract.
-            domain_limits (dict, optional): da dimension slices of domain, to Limits for selecting a subset of the domain. for patch extractions
+            domain_limits (dict, optional): da dimension slices of domain, to Limits for selecting
+                                            a subset of the domain. for patch extractions
             strides (dict, optional): dims to strides size for patch extraction.(default to one)
             check_full_scan (bool, optional): if True raise an error if the whole domain is not scanned by the patch.
             check_dim_order (bool, optional): Whether to check the dimension ordering.
@@ -141,11 +142,11 @@ class XrDataset(torch.utils.data.Dataset):
         self.return_coords = True
         coords = []
         try:
-            for i in range(len(self)):
-                coords.append(self[i])
+            for _, item in enumerate(self):
+                coords.append(item)
         finally:
             self.return_coords = False
-            return coords
+        return coords
 
     def __getitem__(self, item):
         """
@@ -180,8 +181,9 @@ class XrDataset(torch.utils.data.Dataset):
 
                 Args:
             batches (list): List of patches (torch tensor) corresponding to batches without shuffle.
-            weight (np.ndarray, optional): tensor of size patch_dims corresponding to the weight of a prediction depending on the position on the patch (default to ones everywhere)
-        overlapping patches will be averaged with weighting
+            weight (np.ndarray, optional): tensor of size patch_dims corresponding to the weight of a prediction 
+               depending on the position on the patch (default to ones everywhere) overlapping patches will
+               be averaged with weighting
 
         Returns:
             xarray.DataArray: Reconstructed data array. A stitched xarray.DataArray with the coords of patch_dims
@@ -467,7 +469,9 @@ class ConcatDataModule(BaseDataModule):
         sum, count = 0, 0
         train_data = self.input_da.sel(self.xrds_kw.get('domain_limits', {}))
         for domain in self.domains['train']:
-            _sum, _count = train_data.sel(domain).sel(variable='tgt').pipe(lambda da: (da.sum(), da.pipe(np.isfinite).sum()))
+            _sum, _count = train_data.sel(domain).sel(variable='tgt').pipe(
+                lambda da: (da.sum(), da.pipe(np.isfinite).sum())
+            )
             sum += _sum
             count += _count
 
@@ -539,4 +543,3 @@ class RandValDataModule(BaseDataModule):
             self.train_ds = AugmentedDataset(self.train_ds, **self.aug_kw)
 
         self.test_ds = XrDataset(self.input_da.sel(self.domains['test']), **self.xrds_kw, postpro_fn=post_fn,)
-
