@@ -1,6 +1,8 @@
 """
-This module defines models and solvers for 4D-VarNet, a framework for solving 
-inverse problems in data assimilation using deep learning and PyTorch Lightning.
+This module defines models and solvers for 4D-VarNet.
+
+4D-VarNet is a framework for solving inverse problems in data assimilation 
+using deep learning and PyTorch Lightning.
 
 Classes:
     Lit4dVarNet: A PyTorch Lightning module for training and testing 4D-VarNet models.
@@ -215,7 +217,9 @@ class Lit4dVarNet(pl.LightningModule):
 
     def on_test_epoch_end(self):
         """
-        Perform actions at the end of the test epoch, such as logging metrics.
+        Perform actions at the end of the test epoch.
+
+        This includes logging metrics and saving test data.
         """
         rec_da = self.trainer.test_dataloaders.dataset.reconstruct(
             self.test_data, self.rec_weight.cpu().numpy()

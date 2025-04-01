@@ -1,6 +1,28 @@
 """
-This module provides data handling utilities for machine learning tasks using PyTorch and xarray.
-It includes classes for creating datasets, augmenting data, and managing data loading pipelines.
+This module provides data handling utilities for 4D-VarNet models.
+
+It includes classes and functions for creating datasets, augmenting data, 
+managing data loading pipelines, and reconstructing data from patches. 
+These utilities are designed to work seamlessly with PyTorch and xarray, 
+enabling efficient data preprocessing and loading for machine learning tasks.
+
+Classes:
+    - XrDataset: A PyTorch Dataset for extracting patches from xarray.DataArray objects.
+    - XrConcatDataset: A concatenation of multiple XrDatasets.
+    - AugmentedDataset: A dataset wrapper for applying data augmentation.
+    - BaseDataModule: A PyTorch Lightning DataModule for managing datasets and data loaders.
+    - ConcatDataModule: A DataModule for combining datasets from multiple domains.
+    - RandValDataModule: A DataModule for random splitting of training data into training and validation sets.
+
+Exceptions:
+    - IncompleteScanConfiguration: Raised when the scan configuration does not cover the entire domain.
+    - DangerousDimOrdering: Raised when the dimension ordering of the input data is incorrect.
+
+Key Features:
+    - Patch extraction: Efficiently extract patches from large xarray.DataArray objects for training.
+    - Data augmentation: Support for augmenting datasets with noise and transformations.
+    - Reconstruction: Reconstruct the original data from extracted patches.
+    - Seamless integration: Designed to work with PyTorch Lightning for streamlined training pipelines.
 """
 
 import itertools
@@ -15,16 +37,12 @@ TrainingItem = namedtuple('TrainingItem', ['input', 'tgt'])
 
 
 class IncompleteScanConfiguration(Exception):
-    """
-    Exception raised when the scan configuration does not cover the entire domain.
-    """
+    """Exception raised when the scan configuration does not cover the entire domain."""
     # pass
 
 
 class DangerousDimOrdering(Exception):
-    """
-    Exception raised when the dimension ordering of the input data is incorrect.
-    """
+    """Exception raised when the dimension ordering of the input data is incorrect."""
     # pass
 
 
@@ -35,18 +53,17 @@ class XrDataset(torch.utils.data.Dataset):
     This class allows efficient extraction of patches from an xarray.DataArray
     for training machine learning models.
 
-    ### Usage: ####
-    If you want to be able to reconstruct the input
+    Usage:
+        If you want to be able to reconstruct the input, the input xr.DataArray should:
+        - Have coordinates.
+        - Have the last dims correspond to the patch dims in the same order.
+        - Have, for each dim of patch_dim, (size(dim) - patch_dim(dim)) divisible by stride(dim).
 
-    the input xr.DataArray should:
-        - have coordinates
-        - have the last dims correspond to the patch dims in same order
-        - have for each dim of patch_dim (size(dim) - patch_dim(dim)) divisible by stride(dim)
+        The batches passed to self.reconstruct should:
+        - Have the last dims correspond to the patch dims in the same order.
 
-    the batches passed to self.reconstruct should:
-        - have the last dims correspond to the patch dims in same order
 
-            Attributes:
+    Attributes:
         da (xarray.DataArray): The input data array.
         patch_dims (dict): Dimensions and sizes of patches to extract.
         domain_limits (dict): Limits for selecting a subset of the domain.
@@ -54,6 +71,7 @@ class XrDataset(torch.utils.data.Dataset):
         check_full_scan (bool): Whether to check if the entire domain is scanned.
         check_dim_order (bool): Whether to check the dimension ordering.
         postpro_fn (callable): A function for post-processing extracted patches.
+
     """
 
     def __init__(
@@ -177,16 +195,17 @@ class XrDataset(torch.utils.data.Dataset):
     def reconstruct(self, batches, weight=None):
         """
         Reconstruct the original data array from patches.
-        Takes as input a list of np.ndarray of dimensions (b, *, *patch_dims)
 
-                Args:
+        Takes as input a list of np.ndarray of dimensions (b, *, *patch_dims).
+
+        Args:
             batches (list): List of patches (torch tensor) corresponding to batches without shuffle.
-            weight (np.ndarray, optional): tensor of size patch_dims corresponding to the weight of a prediction 
-               depending on the position on the patch (default to ones everywhere) overlapping patches will
-               be averaged with weighting
+            weight (np.ndarray, optional): Tensor of size patch_dims corresponding to the weight of a prediction 
+                depending on the position on the patch (default to ones everywhere). Overlapping patches will
+                be averaged with weighting.
 
         Returns:
-            xarray.DataArray: Reconstructed data array. A stitched xarray.DataArray with the coords of patch_dims
+            xarray.DataArray: Reconstructed data array. A stitched xarray.DataArray with the coords of patch_dims.
         """
         items = list(itertools.chain(*batches))
         return self.reconstruct_from_items(items, weight)
@@ -455,9 +474,7 @@ class BaseDataModule(pl.LightningDataModule):
 
 
 class ConcatDataModule(BaseDataModule):
-    """
-    A data module for concatenating datasets from multiple domains.
-    """
+    """A data module for concatenating datasets from multiple domains."""
 
     def train_mean_std(self):
         """

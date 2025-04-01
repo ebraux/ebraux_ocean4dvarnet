@@ -1,6 +1,8 @@
 """
-This module provides utility functions for 4D-VarNet, including data preprocessing, 
-optimization configuration, diagnostics, and evaluation metrics.
+This module provides utility functions for 4D-VarNet.
+
+Utility functions include data preprocessing, optimization configuration,
+diagnostics, and evaluation metrics.
 
 Functions:
     pipe: Apply a sequence of functions to an input.
@@ -16,7 +18,7 @@ Functions:
     get_triang_time_wei: Generate a triangular time weighting mask for patches.
     load_enatl: Load ENATL dataset and preprocess it.
     load_altimetry_data: Load altimetry data and preprocess it.
-    load_dc_data: Placeholder for loading DC data.
+    load_dc_data: Load DC data (currently a placeholder function).
     load_full_natl_data: Load full NATL dataset and preprocess it.
     rmse_based_scores_from_ds: Compute RMSE-based scores from a dataset.
     psd_based_scores_from_ds: Compute PSD-based scores from a dataset.
@@ -33,9 +35,11 @@ Functions:
     load_cfg: Load configuration files for an experiment.
 """
 
-import numpy as np
-from omegaconf import OmegaConf
+
+
 from pathlib import Path
+from omegaconf import OmegaConf
+import numpy as np
 import metpy.calc as mpcalc
 import kornia
 import pandas as pd
@@ -44,10 +48,9 @@ import torch
 import pyinterp
 import pyinterp.fill
 import pyinterp.backends.xarray
-import data
 import xarray as xr
 import matplotlib.pyplot as plt
-
+from . import data
 
 def pipe(inp, fns):
     """
@@ -162,7 +165,7 @@ def cosanneal_lr_lion(lit_mod, lr, t_max=100):
     )
     return {
         "optimizer": opt,
-        "lr_scheduler": torch.optim.lr_scheduler.CosineAnnealingLR(opt, t_max=t_max),
+        "lr_scheduler": torch.optim.lr_scheduler.CosineAnnealingLR(opt, T_max=t_max),
     }
 
 
@@ -343,12 +346,14 @@ def load_altimetry_data(path, obs_from_tgt=False):
     )
 
 
-def load_dc_data():
+def load_dc_data(**kwargs):
     """
-    Placeholder function for loading DC data.
+    Load DC data.
+
+    This is currently a placeholder function for loading DC data.
 
     Args:
-        kwargs: Additional arguments.
+        kwargs
 
     Returns:
         None

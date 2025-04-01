@@ -1,6 +1,5 @@
 """
-Ocean4DVarNet: A framework for solving inverse problems in data assimilation 
-using deep learning and PyTorch.
+Ocean4DVarNet: A framework for solving inverse problems in data assimilation.
 
 This package provides modules for:
 - Models: Definition of neural network architectures and solvers.
@@ -20,6 +19,7 @@ Modules:
     evaluate: Defines evaluation metrics and functions.
     utils: Contains general-purpose utility functions.
 """
+
 from . import models
 from . import data
 from . import train
