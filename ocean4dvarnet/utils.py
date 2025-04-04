@@ -116,14 +116,14 @@ def half_lr_adam(lit_mod, lr):
     )
 
 
-def cosanneal_lr_adam(lit_mod, lr, t_max=100, weight_decay=0.):
+def cosanneal_lr_adam(lit_mod, lr, T_max=100, weight_decay=0.):
     """
     Configure an Adam optimizer with cosine annealing learning rate scheduling.
 
     Args:
         lit_mod: The Lightning module containing the model.
         lr (float): The base learning rate.
-        t_max (int): Maximum number of iterations for the scheduler.
+        T_max (int): Maximum number of iterations for the scheduler.
         weight_decay (float): Weight decay for the optimizer.
 
     Returns:
@@ -139,19 +139,19 @@ def cosanneal_lr_adam(lit_mod, lr, t_max=100, weight_decay=0.):
     return {
         "optimizer": opt,
         "lr_scheduler": torch.optim.lr_scheduler.CosineAnnealingLR(
-            opt, T_max=t_max
+            opt, T_max=T_max
         ),
     }
 
 
-def cosanneal_lr_lion(lit_mod, lr, t_max=100):
+def cosanneal_lr_lion(lit_mod, lr, T_max=100):
     """
     Configure a Lion optimizer with cosine annealing learning rate scheduling.
 
     Args:
         lit_mod: The Lightning module containing the model.
         lr (float): The base learning rate.
-        t_max (int): Maximum number of iterations for the scheduler.
+        T_max (int): Maximum number of iterations for the scheduler.
 
     Returns:
         dict: A dictionary containing the optimizer and scheduler.
@@ -165,7 +165,7 @@ def cosanneal_lr_lion(lit_mod, lr, t_max=100):
     )
     return {
         "optimizer": opt,
-        "lr_scheduler": torch.optim.lr_scheduler.CosineAnnealingLR(opt, T_max=t_max),
+        "lr_scheduler": torch.optim.lr_scheduler.CosineAnnealingLR(opt, T_max=T_max),
     }
 
 
