@@ -38,12 +38,12 @@ TrainingItem = namedtuple('TrainingItem', ['input', 'tgt'])
 
 class IncompleteScanConfiguration(Exception):
     """Exception raised when the scan configuration does not cover the entire domain."""
-    # pass
+    pass
 
 
 class DangerousDimOrdering(Exception):
     """Exception raised when the dimension ordering of the input data is incorrect."""
-    # pass
+    pass
 
 
 class XrDataset(torch.utils.data.Dataset):
@@ -160,11 +160,11 @@ class XrDataset(torch.utils.data.Dataset):
         self.return_coords = True
         coords = []
         try:
-            for _, item in enumerate(self):
-                coords.append(item)
+            for i in range(len(self)):
+                 coords.append(self[i])
         finally:
             self.return_coords = False
-        return coords
+            return coords
 
     def __getitem__(self, item):
         """

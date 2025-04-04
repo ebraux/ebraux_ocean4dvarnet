@@ -70,7 +70,7 @@ class Lit4dVarNet(pl.LightningModule):
         """
         if self._norm_stats is not None:
             return self._norm_stats
-        if self.trainer.datamodule is not None:
+        elif self.trainer.datamodule is not None:
             return self.trainer.datamodule.norm_stats()
         return (0., 1.)
 
@@ -229,7 +229,7 @@ class Lit4dVarNet(pl.LightningModule):
             rec_da = rec_da[0]
 
         self.test_data = rec_da.assign_coords(
-            {"v0": self.test_quantities}
+            dict(v0=self.test_quantities)
         ).to_dataset(dim='v0')
 
         metric_data = self.test_data.pipe(self.pre_metric_fn)

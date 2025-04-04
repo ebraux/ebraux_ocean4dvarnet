@@ -62,10 +62,7 @@ def multi_dm_training(
     if test_fn is not None:
         if test_dm is None:
             test_dm = dm
-        if hasattr(lit_mod, 'set_norm_stats') and callable(getattr(lit_mod, 'set_norm_stats')):
-            lit_mod.set_norm_stats(test_dm.norm_stats())
-        else:
-            raise AttributeError("The 'lit_mod' object does not have a 'set_norm_stats' method.")
+        lit_mod._norm_stats = test_dm.norm_stats()
 
         best_ckpt_path = trainer.checkpoint_callback.best_model_path
         trainer.callbacks = []

@@ -305,10 +305,7 @@ def load_enatl(*args, obs_from_tgt=True, **kwargs):
     )
     nadirs = nadirs.interp(time=ssh.time, method='nearest')\
         .interp(lat=ssh.lat, lon=ssh.lon, method='zero')
-    ds = xr.Dataset(
-        {"input": nadirs, "tgt": (ssh.dims, ssh.values)},
-        nadirs.coords
-    )
+    ds = xr.Dataset(dict(input=nadirs, tgt=(ssh.dims, ssh.values)), nadirs.coords)
     if obs_from_tgt:
         ds = ds.assign(input=ds.tgt.transpose(*ds.input.dims).where(np.isfinite(ds.input), np.nan))
     return ds.transpose('time', 'lat', 'lon').to_array().load().sortby('variable')
@@ -358,8 +355,8 @@ def load_dc_data(**kwargs):
     Returns:
         None
     """
-    # path_gt = "../sla-data-registry/NATL60/NATL/ref_new/NATL60-CJM165_NATL_ssh_y2013.1y.nc",
-    # path_obs = "NATL60/NATL/data_new/dataset_nadir_0d.nc"
+    path_gt = "../sla-data-registry/NATL60/NATL/ref_new/NATL60-CJM165_NATL_ssh_y2013.1y.nc",
+    path_obs = "NATL60/NATL/data_new/dataset_nadir_0d.nc"
 
 
 def load_full_natl_data(
@@ -367,7 +364,7 @@ def load_full_natl_data(
     path_gt="../sla-data-registry/NATL60/NATL/ref_new/NATL60-CJM165_NATL_ssh_y2013.1y.nc",
     obs_var='five_nadirs',
     gt_var='ssh',
-    # **kwargs
+    **kwargs
 ):
     """
     Load and preprocess the full NATL dataset.
@@ -388,10 +385,7 @@ def load_full_natl_data(
         .sel(lat=inp.lat, lon=inp.lon, method="nearest")
     )
 
-    return xr.Dataset(
-        {"input": inp, "tgt": (gt.dims, gt.values)},
-        inp.coords
-    ).to_array().sortby("variable")
+    return xr.Dataset(dict(input=inp, tgt=(gt.dims, gt.values)), inp.coords).to_array().sortby('variable')
 
 
 def rmse_based_scores_from_ds(ds, ref_variable='tgt', study_variable='out'):
@@ -620,14 +614,7 @@ def ensemble_metrics(trainer, lit_mod, ckpt_list, dm, save_path):
         lx, lt = psd_based_scores(lit_mod.test_data.out, lit_mod.test_data.ssh)[1:]
         mu, sig = rmse_based_scores(lit_mod.test_data.out, lit_mod.test_data.ssh)[2:]
 
-        metrics.append({
-            "ckpt": ckpt,
-            "rmse": rmse,
-            "lx": lx,
-            "lt": lt,
-            "mu": mu,
-            "sig": sig,
-        })
+        metrics.append(dict(ckpt=ckpt, rmse=rmse, lx=lx, lt=lt, mu=mu, sig=sig))
 
         if i == 0:
             test_data = lit_mod.test_data
