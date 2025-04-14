@@ -1,6 +1,6 @@
 [project]
 name = "ocean4dvarnet"
-version = "1.0.0"
+version = "1.0.3"
 description = "A computer program whose purpose is to apply deep learning schemes to dynamical systems and ocean remote sensing data."
 authors = [
     { name = "Ronan Fablet", email = "ronan.fablet@imt-atlantique.fr" },
@@ -30,14 +30,6 @@ Documentation = "https://CIA-Oceanix.github.io/ocean4dvarnet/"
 Repository = "https://github.com/CIA-Oceanix/ocean4dvarnet"
 Issues = "https://github.com//CIA-Oceanix/ocean4dvarnet/issues"
 
-[build-system]
-requires = [
-    "setuptools",
-    "wheel",
-]
-build-backend = "setuptools.build_meta"
-
-
 [project.optional-dependencies]
 dev = [
     "pylint",
@@ -64,6 +56,12 @@ pypi = [
     "tomli-w",
 ]
 
+[build-system]
+requires = [
+    "setuptools",
+    "wheel",
+]
+build-backend = "setuptools.build_meta"
 
 [tool.pylint.format]
 max-line-length = 120
