@@ -16,12 +16,27 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "Operating System :: OS Independent",
 ]
+dependencies = [
+    "xarray==2025.1.2",
+    "netcdf4 (>=1.7.2,<2.0.0)",
+    "numpy==1.26.4",
+    "pandas",
+    "pytorch-lightning==2.3.3",
+]
 
 [project.urls]
 Homepage = "https://github.io//CIA-Oceanix/ocean4dvarnet/"
 Documentation = "https://CIA-Oceanix.github.io/ocean4dvarnet/"
 Repository = "https://github.com/CIA-Oceanix/ocean4dvarnet"
 Issues = "https://github.com//CIA-Oceanix/ocean4dvarnet/issues"
+
+[build-system]
+requires = [
+    "setuptools",
+    "wheel",
+]
+build-backend = "setuptools.build_meta"
+
 
 [project.optional-dependencies]
 dev = [
@@ -49,19 +64,6 @@ pypi = [
     "tomli-w",
 ]
 
-[build-system]
-requires = [
-    "setuptools",
-    "wheel",
-]
-build-backend = "setuptools.build_meta"
-dependencies = [
-    "xarray==2025.1.2",
-    "netcdf4 (>=1.7.2,<2.0.0)",
-    "numpy==1.26.4",
-    "pandas",
-    "pytorch-lightning==2.3.3",
-]
 
 [tool.pylint.format]
 max-line-length = 120
