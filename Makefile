@@ -29,7 +29,7 @@ push:
 
 ## Check the current version in pyproject.toml
 check:
-	@echo "🔍 Checking version in $(PYPROJECT)"
+	@echo "Checking version in $(PYPROJECT)"
 	@grep '^version =' $(PYPROJECT)
 
 ## Run full release workflow: bump, check, commit, tag, push

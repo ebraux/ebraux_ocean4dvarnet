@@ -19,7 +19,7 @@ classifiers = [
 
 [project.urls]
 Homepage = "https://github.io//CIA-Oceanix/ocean4dvarnet/"
-Documentation = "https:///CIA-Oceanix.github.io/ocean4dvarnet/"
+Documentation = "https://CIA-Oceanix.github.io/ocean4dvarnet/"
 Repository = "https://github.com/CIA-Oceanix/ocean4dvarnet"
 Issues = "https://github.com//CIA-Oceanix/ocean4dvarnet/issues"
 
