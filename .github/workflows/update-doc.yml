@@ -1,0 +1,27 @@
+---
+name: Update Documentation
+
+on:
+  push:
+    paths:
+      - 'docs/**'
+      - 'mkdocs.yml'
+      - 'ocean4dvarnet/**'
+
+jobs:
+
+  update-mkdocs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install doc dependecies 
+        run: |
+          echo "Installing doc dependencies"
+          pip install -e .[doc]
+
+      - name: Deploy MkDocs to GitHub Pages
+        run: |
+          mkdocs gh-deploy --force
