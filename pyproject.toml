@@ -39,9 +39,13 @@ dev = [
     "tomli",
     "tomli-w",
     "flake8",
+    "flake8-pyproject",
     "black",
     "isort",
     "mypy",
+    "bandit",
+    "safety",
+    "ruff",
 ]
 doc = [
     "mkdocs",
@@ -63,5 +67,32 @@ requires = [
 ]
 build-backend = "setuptools.build_meta"
 
+
+# pypi does not support pyproject.toml 
+# the configuration is in the .pypirc
+#[tool.pypirc]
+
+
 [tool.pylint.format]
 max-line-length = 120
+
+[tool.flake8]
+max-line-length = 120
+
+[tool.black]
+line-length = 120
+
+[tool.isort]
+profile = "black"
+line_length = 120
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q"
+testpaths = "tests"
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
+
+[tool.ruff]
+line-length = 120
