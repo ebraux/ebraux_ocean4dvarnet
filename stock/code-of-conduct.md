@@ -1,0 +1,1 @@
+https://mkdocstrings.github.io/python/code_of_conduct/
