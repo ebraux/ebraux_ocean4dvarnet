@@ -1,9 +1,0 @@
-name: Build Python Package
-description: Builds the package using `build`
-runs:
-  using: "composite"
-  steps:
-    - run: |
-        python -m pip install --upgrade pip build
-        python -m build
-      shell: bash
