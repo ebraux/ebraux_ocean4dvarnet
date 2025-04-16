@@ -1,0 +1,15 @@
+[
+    {
+        "type": "fatal",
+        "module": "mon_projet/",
+        "obj": "",
+        "line": 1,
+        "column": 0,
+        "endLine": null,
+        "endColumn": null,
+        "path": "mon_projet/",
+        "symbol": "fatal",
+        "message": "No module named mon_projet/",
+        "message-id": "F0001"
+    }
+]
