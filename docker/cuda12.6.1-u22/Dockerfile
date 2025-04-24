@@ -60,23 +60,33 @@ RUN conda install -n base -c conda-forge mamba -y && \
 
 # Create a conda environment and install dependencies
 RUN mamba create -n oceanenv python=3.12 -y && \
-    echo "source activate oceanenv" > ~/.bashrc
+    echo "source /opt/conda/etc/profile.d/conda.sh && conda activate oceanenv" >> ~/.bashrc
+
 
 ENV PATH=/opt/conda/envs/oceanenv/bin:$PATH
 
 # Install dependencies from the list in the repository
 RUN git clone https://github.com/ebraux/ebraux_ocean4dvarnet.git  ocean4dvarnet && \
     cp ocean4dvarnet/environment.yaml . && \
+    cp -rp ocean4dvarnet/scripts /scripts && \
+    chmod 755 /scripts/* && \
     #git checkout 0.1.0 && \
     #cd .. && \
     #rm -rf ocean4dvarnet/.git
     rm -rf ocean4dvarnet && \
+    source /opt/conda/etc/profile.d/conda.sh && \
+    conda activate oceanenv && \
     mamba env update -y -f environment.yaml && \
     mamba clean --all -y && \
     rm -rf environment.yaml
 
 # Set locales
-ENV LC_ALL="en_US.UTF-8"
-ENV LANG="en_US.UTF-8"
+#ENV LC_ALL="en_US.UTF-8"
+#ENV LANG="en_US.UTF-8"
+RUN echo "LC_ALL=en_US.UTF-8" >> /etc/environment && \
+    echo "LANG=en_US.UTF-8" >> /etc/environment
 
-USER 1000
+# Ensure the environment is activated when the container starts
+ENTRYPOINT ["/bin/bash", "-c", "source /opt/conda/etc/profile.d/conda.sh && conda activate oceanenv && exec \"$@\"", "--"]
+
+USER ${USERNAME}
