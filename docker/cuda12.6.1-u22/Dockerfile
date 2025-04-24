@@ -6,9 +6,11 @@ FROM $BASE_IMAGE
 LABEL maintainer="Emmanuel braux <emmanuel.braux@example.com>"
 LABEL description="Docker Image for ocean4dvarnet"
 LABEL version="1.0"
+LABEL org.opencontainers.image.description="Ocean4DVarnet environment"
 LABEL org.opencontainers.image.authors="Emmanuel braux"
 LABEL org.opencontainers.image.documentation="https://cia-oceanix.github.io/ocean4dvarnet/"
-
+LABEL org.opencontainers.image.source="https://github.com/CIA-Oceanix/ocean4dvarnet""
+LABEL org.opencontainers.image.licenses=CeCILL-C
 
 USER root
 
