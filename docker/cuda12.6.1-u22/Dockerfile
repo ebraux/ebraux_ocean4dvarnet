@@ -9,7 +9,7 @@ LABEL version="1.0"
 LABEL org.opencontainers.image.description="Ocean4DVarnet environment"
 LABEL org.opencontainers.image.authors="Emmanuel braux"
 LABEL org.opencontainers.image.documentation="https://cia-oceanix.github.io/ocean4dvarnet/"
-LABEL org.opencontainers.image.source="https://github.com/CIA-Oceanix/ocean4dvarnet""
+LABEL org.opencontainers.image.source="https://github.com/CIA-Oceanix/ocean4dvarnet"
 LABEL org.opencontainers.image.licenses=CeCILL-C
 
 USER root
@@ -36,7 +36,7 @@ RUN groupmod -g ${GID} ${GROUPNAME} && \
 WORKDIR ${WORKSPACE_DIR}
 
 # Install system dependencies and Miniconda
-RUN apt-get update && apt-get install -y --no-cache wget bzip2 ca-certificates \
+RUN apt-get update && apt-get install -y wget bzip2 ca-certificates \
     libglib2.0-0 libxext6 libsm6 libxrender-dev git && \
     wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh && \
     /bin/bash ~/miniconda.sh -b -p /opt/conda && \
