@@ -35,58 +35,56 @@ RUN groupmod -g ${GID} ${GROUPNAME} && \
     touch ${HOME}/.sudo_as_admin_successful
 WORKDIR ${WORKSPACE_DIR}
 
-# Install system dependencies and Miniconda
-RUN apt-get update && apt-get install -y wget bzip2 ca-certificates \
-    libglib2.0-0 libxext6 libsm6 libxrender-dev git && \
-    wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh && \
-    /bin/bash ~/miniconda.sh -b -p /opt/conda && \
-    rm ~/miniconda.sh && \
-    /opt/conda/bin/conda clean --all -fy && \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+# Copy system scripts
+COPY --chmod='+x' scripts/ /opt/
 
-ENV PATH=/opt/conda/bin:$PATH
+# Install system dependencies
+RUN /opt/install-system-libs.sh && \
+    # Generate locales
+    /opt/config-locales.sh && \
+    # Fix user permissions
+    /opt/fix-user-permissions.sh  && \
+    # # Clean
+    /opt/clean.sh
 
-# Configure conda
-RUN conda config --set channel_priority flexible && \
-    conda config --remove-key channels && \
-    conda config --add channels  defaults && \
-    conda config --prepend channels conda-forge && \
-    conda config --remove channels  defaults && \
-    conda config --append channels  nodefaults
-    
-# Update conda and install mamba
-RUN conda install -n base -c conda-forge mamba -y && \
-    conda clean --all -fy
+# Set Home_dir for conda/mamba
+ENV MAMBA_DIR=$HOME/mamba
 
 # Create a conda environment and install dependencies
-RUN mamba create -n oceanenv python=3.12 -y && \
-    echo "source /opt/conda/etc/profile.d/conda.sh && conda activate oceanenv" >> ~/.bashrc
-
-
-ENV PATH=/opt/conda/envs/oceanenv/bin:$PATH
-
-# Install dependencies from the list in the repository
-RUN git clone https://github.com/ebraux/ebraux_ocean4dvarnet.git  ocean4dvarnet && \
-    cp ocean4dvarnet/environment.yaml . && \
-    cp -rp ocean4dvarnet/scripts /scripts && \
+RUN git clone --branch main --single-branch --depth 1 https://github.com/CIA-Oceanix/ocean4dvarnet.git  ocean4dvarnet && \
+    # Copy the scripts folder to the container
+    mv ocean4dvarnet/scripts /scripts && \
     chmod 755 /scripts/* && \
-    #git checkout 0.1.0 && \
-    #cd .. && \
-    #rm -rf ocean4dvarnet/.git
-    rm -rf ocean4dvarnet && \
-    source /opt/conda/etc/profile.d/conda.sh && \
-    conda activate oceanenv && \
-    mamba env update -y -f environment.yaml && \
+    # Install Mamba
+    /opt/install-mamba.sh $MAMBA_DIR && \
+    # Init Mamba and Conda
+    source $MAMBA_DIR/init-conda.sh && \
+    source $MAMBA_DIR/init-mamba.sh && \
+     # Create a Mamba environment
+     mamba create -n oceanenv python=3.12 -y && \
+    # Activate the Mamba environment
+    mamba activate oceanenv && \
+    # Configure conda channels for the environment
+    conda config --env --set show_channel_urls yes || true && \
+    conda config --env --set channel_priority flexible || true && \
+    conda config --env --remove-key channels || true && \
+    conda config --env --add channels  defaults || true && \
+    conda config --env --prepend channels conda-forge || true && \
+    conda config --env --remove channels  defaults || true && \
+    conda config --env --append channels  nodefaults || true && \
+    # Install dependencies from the list in the repository
+    mamba env update -y -f ocean4dvarnet/environment.yaml -y --quiet&& \
     mamba clean --all -y && \
-    rm -rf environment.yaml
+    # remove installation files
+    #rm -f scripts/install-mamba.sh && \
+    # Remove the cloned repository
+    rm -rf ocean4dvarnet
 
-# Set locales
-#ENV LC_ALL="en_US.UTF-8"
-#ENV LANG="en_US.UTF-8"
-RUN echo "LC_ALL=en_US.UTF-8" >> /etc/environment && \
-    echo "LANG=en_US.UTF-8" >> /etc/environment
 
-# Ensure the environment is activated when the container starts
-ENTRYPOINT ["/bin/bash", "-c", "source /opt/conda/etc/profile.d/conda.sh && conda activate oceanenv && exec \"$@\"", "--"]
+# # Copy the entrypoint script to the container
+# COPY --chmod=+x entrypoint.sh /usr/local/bin/entrypoint.sh
 
-USER ${USERNAME}
+# # Set the entrypoint to the script
+# ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+
+# USER ${USERNAME}
