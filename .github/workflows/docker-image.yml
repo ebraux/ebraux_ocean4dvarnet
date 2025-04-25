@@ -27,33 +27,20 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Build Docker image
-      uses: docker/build-push-action@v6
-      with:
-        context: docker/cuda12.6.1-u22
-        push: false
-        tags: ghcr.io/${{ github.repository_owner }}/ocean4dvarnet-env:cuda12.6.1-u22
-
-    - name: List Docker images
-      run: docker images
-
-    # - name: Run tests
-    #   run: |
-    #     docker run --rm ghcr.io/${{ github.repository_owner }}/ocean4dvarnet-env:cuda12.6.1-u22 /bin/bash -c "cd /opt/ocean4dvarnet && pytest -v --disable-warnings --tb=short tests/"
-    #   env:
-    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    #     GITHUB_REPOSITORY: ${{ github.repository }}
-    #     GITHUB_ACTOR: ${{ github.actor }}
-    #     GITHUB_WORKSPACE: ${{ github.workspace }}
-    #     GITHUB_REF: ${{ github.ref }}
-      
-
     - name: Push Docker image
+      id: build
       uses: docker/build-push-action@v6
       with:
         context: docker/cuda12.6.1-u22
         push: true
         tags: ghcr.io/${{ github.repository_owner }}/ocean4dvarnet-env:cuda12.6.1-u22
+        outputs: type=docker,dest=/tmp/image.tar
+
+    - name: Load Docker image
+      run: docker load --input /tmp/image.tar
+        
+    - name: List Docker images
+      run: docker images
 
     - name: Test image using Google's Container Structure Test
       uses: ./.github/actions/container-structure-test
