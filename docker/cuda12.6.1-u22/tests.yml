@@ -14,8 +14,8 @@ metadataTest:
     - key: "org.opencontainers.image.documentation"
       value: "https://cia-oceanix.github.io/ocean4dvarnet/"
   exposedPorts: []
-  entrypoint: ["/bin/bash", "-c", "source /opt/conda/etc/profile.d/conda.sh && conda activate oceanenv && exec \"$@\"", "--"]
-  user: "ocean4dvarnet"
+  #entrypoint: ["/bin/bash", "-c", "source /opt/conda/etc/profile.d/conda.sh && conda activate oceanenv && exec \"$@\"", "--"]
+  user: "1000"
 
 # File existence tests
 fileExistenceTests:

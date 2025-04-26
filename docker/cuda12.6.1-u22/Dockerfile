@@ -47,33 +47,40 @@ RUN /opt/install-system-libs.sh && \
     # # Clean
     /opt/clean.sh
 
+USER ${UID}
+
+
 # Set Home_dir for conda/mamba
 ENV MAMBA_DIR=$HOME/mamba
+ENV MAMBA_ENV_NAME=oceanenv
+
 
 # Create a conda environment and install dependencies
 RUN git clone --branch main --single-branch --depth 1 https://github.com/CIA-Oceanix/ocean4dvarnet.git  ocean4dvarnet && \
     # Copy the scripts folder to the container
-    mv ocean4dvarnet/scripts /scripts && \
-    chmod 755 /scripts/* && \
+    mv ocean4dvarnet/scripts $HOME/scripts && \
+    chmod 755 $HOME/scripts/* && \
     # Install Mamba
     /opt/install-mamba.sh $MAMBA_DIR && \
-    # Init Mamba and Conda
-    source $MAMBA_DIR/init-conda.sh && \
-    source $MAMBA_DIR/init-mamba.sh && \
-     # Create a Mamba environment
-     mamba create -n oceanenv python=3.12 -y && \
-    # Activate the Mamba environment
-    mamba activate oceanenv && \
-    # Configure conda channels for the environment
-    conda config --env --set show_channel_urls yes || true && \
-    conda config --env --set channel_priority flexible || true && \
-    conda config --env --remove-key channels || true && \
-    conda config --env --add channels  defaults || true && \
-    conda config --env --prepend channels conda-forge || true && \
-    conda config --env --remove channels  defaults || true && \
-    conda config --env --append channels  nodefaults || true && \
-    # Install dependencies from the list in the repository
-    mamba env update -y -f ocean4dvarnet/environment.yaml -y --quiet&& \
+    # Initialize Mamba
+    source $MAMBA_DIR/init.sh && \
+    # Create a oceanenv Mamba environment, and install the dependencies
+    /opt/setup_mamba_env.sh $MAMBA_ENV_NAME ocean4dvarnet/environment.yaml && \
+    # mamba create -n oceanenv python=3.12 -y && \
+    # # Activate the Mamba environment
+    # mamba activate oceanenv && \
+    # # Configure conda channels for the environment
+    # conda config --env --set show_channel_urls yes || true && \
+    # conda config --env --set channel_priority flexible || true && \
+    # conda config --env --remove-key channels || true && \
+    # conda config --env --add channels  defaults || true && \
+    # conda config --env --prepend channels conda-forge || true && \
+    # conda config --env --remove channels  defaults || true && \
+    # conda config --env --append channels  nodefaults || true && \
+    # # Install dependencies from the list in the repository
+    # mamba env update -y -f ocean4dvarnet/environment.yaml -y --quiet&& \
+    # mamba clean --all -y && \
+    # Clean up
     mamba clean --all -y && \
     # remove installation files
     #rm -f scripts/install-mamba.sh && \
@@ -87,4 +94,4 @@ RUN git clone --branch main --single-branch --depth 1 https://github.com/CIA-Oce
 # # Set the entrypoint to the script
 # ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 
-# USER ${USERNAME}
+# USER ${UID}

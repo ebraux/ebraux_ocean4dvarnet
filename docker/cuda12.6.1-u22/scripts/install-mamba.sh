@@ -29,7 +29,8 @@ install_miniconda() {
     fi
 
     log "Initialize bash shell for Conda"
-    echo "eval \"\$(${INSTALL_DIR}/bin/conda shell.bash hook)\"" > ${INSTALL_DIR}/init-conda.sh
+    echo '# Initialize shell for Conda' >> $INSTALL_DIR/init.sh
+    echo "eval \"\$(${INSTALL_DIR}/bin/conda shell.bash hook)\"" >> ${INSTALL_DIR}/init-conda.sh
     #eval "$(/opt/conda/bin/conda shell.bash hook)"
     if [[ $? -ne 0 ]]; then
         log "Error: Failed to initialize bash shell for conda."
@@ -68,19 +69,14 @@ install_mamba() {
     fi
 
     log "Initialize shell for Mamba"
-    echo "eval \"\$(mamba shell hook --shell bash)\"" > $INSTALL_DIR/init-mamba.sh
+    echo '# Initialize shell for Mamba' >> $INSTALL_DIR/init.sh
+    echo "eval \"\$(mamba shell hook --shell bash)\"" >> $INSTALL_DIR/init-mamba.sh
     if [[ $? -ne 0 ]]; then
         log "Error: Failed to initialize shell for mamba."
         exit 1
     fi
 
-    # log "Setting up Mamba environment..."
-    # # Create a temporary file with the necessary parts of ~/.bashrc
-    # temp_bashrc=$(mktemp)
-    # sed '/^# If not running interactively/,/^esac/d' ~/.bashrc > "$temp_bashrc"
-    # # Source the temporary file
-    # source "$temp_bashrc"
-    source $INSTALL_DIR/init-mamba.sh
+    source $INSTALL_DIR/init.sh
     if [[ $? -ne 0 ]]; then
         log "Error: Failed to initialize the environment for Conda."
         exit 1
@@ -116,6 +112,17 @@ configure_conda_channels() {
     conda config --append channels nodefaults || true
 }
 
+create_init_files() {
+    log "Creating init files..."
+    echo '#!/bin/bash' > $INSTALL_DIR/init.sh
+    echo 'set -e' >>  $INSTALL_DIR/init.sh
+    echo '' >>  $INSTALL_DIR/init.sh
+    echo '# --- Setting up Conda ---' >> $INSTALL_DIR/init.sh
+    cat $INSTALL_DIR/init-conda.sh >> $INSTALL_DIR/init.sh
+    echo '' >>  $INSTALL_DIR/init.sh
+    echo '# --- Setting up Mamba ---' >> $INSTALL_DIR/init.sh
+    cat $INSTALL_DIR/init-mamba.sh >> $INSTALL_DIR/init.sh
+}
 
 setup_bashrc() {
     log "Setting up ~/.bashrc..."
@@ -123,12 +130,8 @@ setup_bashrc() {
         echo "\n# --- Setting up Mamba ---" >> ~/.bashrc
     fi
 
-    if ! grep -q "source $INSTALL_DIR/init-conda.sh" ~/.bashrc; then
-        echo "source $INSTALL_DIR/init-conda.sh" >> ~/.bashrc
-    fi
-
-    if ! grep -q "source $INSTALL_DIR/init-mamba.sh" ~/.bashrc; then
-        echo "source $INSTALL_DIR/init-mamba.sh" >> ~/.bashrc
+    if ! grep -q "source $INSTALL_DIR/init.sh" ~/.bashrc; then
+        echo "source $INSTALL_DIR/init.sh" >> ~/.bashrc
     fi
 
     log "Bashrc setup completed."
@@ -136,15 +139,21 @@ setup_bashrc() {
 
 # Main script execution
 log "Starting script execution..."
-
+# Install Miniconda
 install_miniconda
-log " --------- after the function PATH = $PATH"
 source $INSTALL_DIR/init-conda.sh
-log " --------- after the test = $PATH"
+# Install Mamba
 install_mamba
-log " --------- after install mamba = $PATH"
+source $INSTALL_DIR/init-mamba.sh
+# Configure conda channels
 configure_conda_channels
+# Create init files tt replace init-conda.sh and init-mamba.sh
+create_init_files
+rm -f $INSTALL_DIR/init-conda.sh
+rm -f $INSTALL_DIR/init-mamba.sh
+# Initialyse Mamba for Bash, in  ~/.bashrc
 setup_bashrc
-log "Script execution completed successfully."
+log "Mamba installation completed successfully."
+
 
 
