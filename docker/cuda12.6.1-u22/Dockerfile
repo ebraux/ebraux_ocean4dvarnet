@@ -36,7 +36,7 @@ RUN groupmod -g ${GID} ${GROUPNAME} && \
 WORKDIR ${WORKSPACE_DIR}
 
 # Copy system scripts
-COPY --chmod='+x' scripts/ /opt/
+COPY --chmod=755 scripts/ /opt/
 
 # Install system dependencies
 RUN /opt/install-system-libs.sh && \
