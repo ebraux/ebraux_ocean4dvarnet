@@ -127,7 +127,7 @@ create_init_files() {
 setup_bashrc() {
     log "Setting up ~/.bashrc..."
     if ! grep -q "Setting up Mamba" ~/.bashrc; then
-        echo "\n# --- Setting up Mamba ---" >> ~/.bashrc
+        echo "# --- Setting up Mamba ---" >> ~/.bashrc
     fi
 
     if ! grep -q "source $INSTALL_DIR/init.sh" ~/.bashrc; then

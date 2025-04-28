@@ -20,9 +20,17 @@ metadataTest:
 # File existence tests
 fileExistenceTests:
   - name: "Miniconda installation"
-    path: "/opt/conda/bin/conda"
+    path: "/home/ocean4dvarnet/mamba/bin/conda"
     shouldExist: true
     permissions: "-rwxr-xr-x"
+  - name: "Mamba installation"
+    path: "/home/ocean4dvarnet/mamba/bin/mamba"
+    shouldExist: true
+    permissions: "-rwxr-xr-x"
+  - name: "Environment Init file"
+    path: "/home/ocean4dvarnet/mamba/init.sh"
+    shouldExist: true
+    permissions: "-rw-r--r--"
   - name: "Environment configuration"
     path: "/home/ocean4dvarnet/.bashrc"
     shouldExist: true
@@ -36,7 +44,7 @@ fileExistenceTests:
 fileContentTests:
   - name: "Check .bashrc content"
     path: "/home/ocean4dvarnet/.bashrc"
-    expectedContents: ["source /opt/conda/etc/profile.d/conda.sh && conda activate oceanenv"]
+    expectedContents: ["source /home/ocean4dvarnet/mamba/init.sh"]
   - name: "Check LC_ALL environment variable"
     path: "/etc/environment"
     expectedContents: ["LC_ALL=en_US.UTF-8"]
@@ -47,14 +55,14 @@ fileContentTests:
 # Command tests
 commandTests:
   - name: "Check conda version"
-    command: "conda"
+    command: "/home/ocean4dvarnet/mamba/bin/conda"
     args: ["--version"]
     expectedOutput: ["conda 25.3.*"]
   - name: "Check mamba version"
-    command: "mamba"
+    command: "/home/ocean4dvarnet/mamba/bin/mamba"
     args: ["--version"]
     expectedOutput: ["2.1.*"]
   - name: "Check Python version"
-    command: "python"
+    command: "/home/ocean4dvarnet/mamba/bin/python"
     args: ["--version"]
     expectedOutput: ["Python 3.12.*"]

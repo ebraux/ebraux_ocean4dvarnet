@@ -12,6 +12,7 @@ LABEL org.opencontainers.image.documentation="https://cia-oceanix.github.io/ocea
 LABEL org.opencontainers.image.source="https://github.com/CIA-Oceanix/ocean4dvarnet"
 LABEL org.opencontainers.image.licenses=CeCILL-C
 
+
 USER root
 
 # System configuration
@@ -33,22 +34,23 @@ RUN groupmod -g ${GID} ${GROUPNAME} && \
     mkdir -p ${WORKSPACE_DIR} && \
     # Disable default sudo message when opening shell
     touch ${HOME}/.sudo_as_admin_successful
-WORKDIR ${WORKSPACE_DIR}
+
 
 # Copy system scripts
-COPY --chmod=755 scripts/ /opt/
+COPY --chmod=755 scripts/ /opt/install-scripts
 
 # Install system dependencies
-RUN /opt/install-system-libs.sh && \
+RUN /opt/install-scripts/install-system-libs.sh && \
     # Generate locales
-    /opt/config-locales.sh && \
+    /opt/install-scripts/config-locales.sh && \
     # Fix user permissions
-    /opt/fix-user-permissions.sh  && \
+    /opt/install-scripts/fix-user-permissions.sh  && \
     # # Clean
-    /opt/clean.sh
+    /opt/install-scripts/clean.sh
 
+# System prep is finished, now Work as user    
 USER ${UID}
-
+WORKDIR ${WORKSPACE_DIR}
 
 # Set Home_dir for conda/mamba
 ENV MAMBA_DIR=$HOME/mamba
@@ -61,37 +63,22 @@ RUN git clone --branch main --single-branch --depth 1 https://github.com/CIA-Oce
     mv ocean4dvarnet/scripts $HOME/scripts && \
     chmod 755 $HOME/scripts/* && \
     # Install Mamba
-    /opt/install-mamba.sh $MAMBA_DIR && \
+    /opt/install-scripts/install-mamba.sh $MAMBA_DIR && \
     # Initialize Mamba
     source $MAMBA_DIR/init.sh && \
     # Create a oceanenv Mamba environment, and install the dependencies
-    /opt/setup_mamba_env.sh $MAMBA_ENV_NAME ocean4dvarnet/environment.yaml && \
-    # mamba create -n oceanenv python=3.12 -y && \
-    # # Activate the Mamba environment
-    # mamba activate oceanenv && \
-    # # Configure conda channels for the environment
-    # conda config --env --set show_channel_urls yes || true && \
-    # conda config --env --set channel_priority flexible || true && \
-    # conda config --env --remove-key channels || true && \
-    # conda config --env --add channels  defaults || true && \
-    # conda config --env --prepend channels conda-forge || true && \
-    # conda config --env --remove channels  defaults || true && \
-    # conda config --env --append channels  nodefaults || true && \
-    # # Install dependencies from the list in the repository
-    # mamba env update -y -f ocean4dvarnet/environment.yaml -y --quiet&& \
-    # mamba clean --all -y && \
+    /opt/install-scripts/setup_mamba_env.sh $MAMBA_ENV_NAME ocean4dvarnet/environment.yaml && \
     # Clean up
     mamba clean --all -y && \
     # remove installation files
     #rm -f scripts/install-mamba.sh && \
-    # Remove the cloned repository
     rm -rf ocean4dvarnet
 
 
-# # Copy the entrypoint script to the container
-# COPY --chmod=+x entrypoint.sh /usr/local/bin/entrypoint.sh
+# Copy the entrypoint script to the container
+COPY --chmod=755 entrypoint.sh /usr/local/bin/entrypoint.sh
 
-# # Set the entrypoint to the script
-# ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+# Set the entrypoint to the script
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 
-# USER ${UID}
+USER ${UID}
