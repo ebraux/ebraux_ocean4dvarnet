@@ -1,5 +1,5 @@
 # Use a base image with CUDA runtime
-ARG BASE_IMAGE=nvidia/cuda:12.6.1-runtime-ubuntu22.04
+ARG BASE_IMAGE=nvidia/cuda:12.4.1-runtime-ubuntu22.04
 FROM $BASE_IMAGE
 
 # Labels for maintenance and metadata
@@ -59,22 +59,25 @@ ENV MAMBA_ENV_NAME=oceanenv
 
 # Create a conda environment and install dependencies
 RUN git clone --branch main --single-branch --depth 1 https://github.com/CIA-Oceanix/ocean4dvarnet.git  ocean4dvarnet && \
-    # Copy the scripts folder to the container
+    # --- Create a conda environment and install dependencies --
+    #    - Install Mamba
+    /opt/install-scripts/install-mamba.sh $MAMBA_DIR && \
+    #    - Initialize Mamba
+    source $MAMBA_DIR/init-conda.sh && \
+    source $MAMBA_DIR/init-mamba.sh && \
+    #    - Create a oceanenv Mamba environment, and install the dependencies
+    /opt/install-scripts/mamba-env-setup.sh $MAMBA_ENV_NAME ocean4dvarnet/environment.yaml && \
+    #    - Create activation file for enable mamba and activate the environment
+    /opt/install-scripts/mamba-env-activate-file.sh $MAMBA_ENV_NAME $MAMBA_DIR && \
+    #    - Update ~/.bashrc to activate environment on shell startup
+    /opt/install-scripts/mamba-env-bashrc.sh $MAMBA_ENV_NAME $MAMBA_DIR && \
+    # --- Copy the scripts folder to the container ---
     mv ocean4dvarnet/scripts $HOME/scripts && \
     chmod 755 $HOME/scripts/* && \
-    # Install Mamba
-    /opt/install-scripts/install-mamba.sh $MAMBA_DIR && \
-    # Initialize Mamba
-    source $MAMBA_DIR/init.sh && \
-    # Create a oceanenv Mamba environment, and install the dependencies
-    /opt/install-scripts/setup_mamba_env.sh $MAMBA_ENV_NAME ocean4dvarnet/environment.yaml && \
-    # Clean up
+    # --- Clean up ---
     mamba clean --all -y && \
-    # remove installation files
-    #rm -f scripts/install-mamba.sh && \
     rm -rf ocean4dvarnet
-
-
+    
 # Copy the entrypoint script to the container
 COPY --chmod=755 entrypoint.sh /usr/local/bin/entrypoint.sh
 

@@ -47,6 +47,8 @@ create_and_configure_mamba_env() {
     fi
 }
 
+
+
 # Check if the requirements file and environment name are provided
 if [[ -z "$1" || -z "$2" ]]; then
     echo "Usage: $0 <environment_name> <requirements_file>" 
@@ -58,3 +60,4 @@ check_binaries
 
 # Call the function with the environment name and requirements file as arguments
 create_and_configure_mamba_env "$1" "$2"
+
