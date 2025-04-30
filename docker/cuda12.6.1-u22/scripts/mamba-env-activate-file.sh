@@ -13,7 +13,7 @@ create_activate_file() {
 
 # shellcheck shell=bash
 
-if [ -z "\$CONDA_DEFAULT_ENV" ] || [ "\$CONDA_DEFAULT_ENV" != "${mamba_base_dir}" ]; then
+if [ -z "\$CONDA_DEFAULT_ENV" ] || [ "\$CONDA_DEFAULT_ENV" != "${env_name}" ]; then
     source ${mamba_base_dir}/init-conda.sh
     source ${mamba_base_dir}/init-mamba.sh
     mamba activate ${env_name}

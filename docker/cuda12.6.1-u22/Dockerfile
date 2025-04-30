@@ -78,10 +78,10 @@ RUN git clone --branch main --single-branch --depth 1 https://github.com/CIA-Oce
     mamba clean --all -y && \
     rm -rf ocean4dvarnet
     
-# Copy the entrypoint script to the container
-COPY --chmod=755 entrypoint.sh /usr/local/bin/entrypoint.sh
+# # Copy the entrypoint script to the container
+# COPY --chmod=755 entrypoint.sh /usr/local/bin/entrypoint.sh
 
-# Set the entrypoint to the script
-ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+# # Set the entrypoint to the script
+# ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 
 USER ${UID}
