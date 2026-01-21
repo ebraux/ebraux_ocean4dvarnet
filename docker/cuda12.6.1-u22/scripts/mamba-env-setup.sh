@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Function to check if required binaries are available
+# Function to check if conda and mamba binaries are available
 check_binaries() {
     if ! command -v conda &> /dev/null; then
         echo "Error: 'conda' binary is not available. Please ensure Conda is installed."
